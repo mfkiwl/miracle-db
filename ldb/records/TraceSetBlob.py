@@ -37,7 +37,7 @@ class TraceSetBlob(Base):
     __tablename__ = "traceset_blobs"
 
     id          = Column(Integer, primary_key=True)
-    compression = Column(Enum(TraceCompression), default = TraceCompression.NONE)
+    compression = Column(Enum(TraceCompression), default = TraceCompression.LZ4)
     traceLen    = Column(Integer, default = 0)
     traceCount  = Column(Integer, default = 0)
     traces      = Column(Binary)
@@ -94,7 +94,7 @@ class TraceSetBlob(Base):
             traces, 
             experimentId,
             targetId,
-            compression = TraceCompression.GZIP):
+            compression = TraceCompression.LZ4):
         """
         Create a new TraceSetBlob object from the supplied traces with the
         specified compression, ready for insertion into the database.
@@ -125,7 +125,7 @@ class TraceSetBlob(Base):
         return decompressNDArray(self.traces,self.compression)
 
 
-    def setTraces(self, traces, compression = TraceCompression.NONE):
+    def setTraces(self, traces, compression = TraceCompression.LZ4):
         """
         Set the traces field of the record, compressing as needed, and
         update the traceCount and traceLen fields.
@@ -133,9 +133,7 @@ class TraceSetBlob(Base):
         assert(isinstance(traces, np.ndarray))
         
         self.traceCount, self.traceLen = traces.shape
-        self.traces     = compressNDArray(traces, compression)
+        self.traces, self.compression = compressNDArray(traces, compression)
         
         assert(len(self.traces) > 0),"Trace data length  = 0"
-
-        self.compression= compression
 

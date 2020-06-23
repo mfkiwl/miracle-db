@@ -21,7 +21,7 @@ class VariableValues(Base):
     __tablename__ = "variable_values"
 
     id          = Column(Integer, primary_key=True)
-    compression = Column(Enum(TraceCompression), default = TraceCompression.NONE)
+    compression = Column(Enum(TraceCompression), default = TraceCompression.LZ4)
     varname     = Column(String, nullable = False)
     num_values  = Column(Integer, default = 0)
     values_bin  = Column(Binary)
@@ -40,7 +40,7 @@ class VariableValues(Base):
             self.id, self.varname, self.compression, self.num_values
         )
 
-    def fromValuesArray(name, values, compression = TraceCompression.GZIP):
+    def fromValuesArray(name, values, compression = TraceCompression.LZ4):
         """
         Create a new VariableValues object from the supplied values with the
         specified compression, ready for insertion into the database.
@@ -60,7 +60,7 @@ class VariableValues(Base):
         """
         return decompressNDArray(self.values_bin,self.compression)
 
-    def setVariableValues(self, values, compression = TraceCompression.NONE):
+    def setVariableValues(self, values, compression = TraceCompression.LZ4):
         """
         Set the values_bin field of the record, compressing as needed, and
         update the num_values field
@@ -68,9 +68,7 @@ class VariableValues(Base):
         assert(isinstance(values, np.ndarray))
         
         self.num_values = values.shape[0]
-        self.values_bin = compressNDArray(values, compression)
+        self.values_bin,self.compression = compressNDArray(values, compression)
         
         assert(len(self.values_bin) > 0),"Valuesdata length  = 0"
-
-        self.compression= compression
 

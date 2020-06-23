@@ -3,6 +3,7 @@ import enum
 import datetime
 import gzip
 import zlib
+import lz4.frame
 import io
 import logging as log
 
@@ -16,6 +17,7 @@ class TraceCompression(enum.Enum):
     NONE    = 1
     GZIP    = 2
     ZLIB    = 3
+    LZ4     = 4
 
 class StatTraceType(enum.Enum):
     TTRACE  = 1
@@ -54,6 +56,12 @@ def compressNDArray(traces, compression):
     elif(compression == TraceCompression.ZLIB):
         tr = zlib.compress(bio.getvalue(), level = 9)
 
+    elif(compression == TraceCompression.LZ4):
+        tr = lz4.frame.compress(
+            bio.getvalue(),
+            compression_level=lz4.frame.COMPRESSIONLEVEL_MAX
+        )
+
     else:
         raise Exception("Unknown compression type: %s" % compression)
 
@@ -61,12 +69,19 @@ def compressNDArray(traces, compression):
 
     assert(isinstance(tr,bytes)),"Return value of TraceSetBlob.compress() should be of type 'bytes'"
 
-    #log.info("Compressed %d bytes down to %d. Ratio = %.2fx. Took %s using %s compression." % (
-    #    traces.size, len(tr), len(tr)/traces.size, compress_time,
-    #    compression.name
-    #))
+    if(traces.nbytes < len(tr)):
+        log.debug("Compression didn't save anything. Returning original data.")
 
-    return tr
+        return (bio.getvalue(), TraceCompression.NONE)
+
+    else:
+
+        log.debug("Compressed %d bytes down to %d. Ratio = %.2fx. Took %s using %s compression." % (
+            traces.nbytes, len(tr), len(tr)/traces.nbytes, compress_time,
+            compression.name
+        ))
+
+    return (tr, compression)
 
 def decompressNDArray(traces_bytes, compression):
     """
@@ -75,20 +90,24 @@ def decompressNDArray(traces_bytes, compression):
     """
     assert(isinstance(traces_bytes,bytes))
 
+    bio = None
+
     if(compression == TraceCompression.NONE):
         bio = io.BytesIO(traces_bytes)
-        return np.load(bio)
 
     elif(compression == TraceCompression.GZIP):
         bio = io.BytesIO(gzip.decompress(traces_bytes))
-        return np.load(bio)
 
     elif(compression == TraceCompression.ZLIB):
         bio = io.BytesIO(zlib.decompress(traces_bytes))
-        return np.load(bio)
+    
+    elif(compression == TraceCompression.LZ4):
+        bio = io.BytesIO(lz4.frame.decompress(traces_bytes))
 
     else:
         raise Exception("Unknown compression type: %s" % compression)
+    
+    return np.load(bio)
 
 from .Device            import Device
 from .Board             import Board

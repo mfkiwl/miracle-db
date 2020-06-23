@@ -13,8 +13,6 @@ from . import Base
 from . import TraceCompression
 from . import CorrolationType
 from . import StatTraceType
-from . import compressNDArray
-from . import decompressNDArray
 
 corrolation_trace_var_values_association = Table (
     "corrolation_trace_var_values_association", Base.metadata,
