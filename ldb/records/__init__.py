@@ -28,6 +28,7 @@ class StatTraceType(enum.Enum):
     RNG     = 6
     HW      = 7
     HD      = 8
+    FFT     = 9
 
 class CorrolationType(enum.Enum):
     HAMMING_WEIGHT      = 1
