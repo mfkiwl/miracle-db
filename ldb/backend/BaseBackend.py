@@ -485,6 +485,17 @@ class BaseBackend(object):
         return self._session.query(TraceSetBlob).filter_by(
             id=traceSetBlobId
         ).one_or_none()
+
+
+    def getTraceSetBlobByTargetAndExperiment(self, tgt_id, exp_id):
+        """
+        Return all of the trace set blobs associated with the
+        supplied eperiment and target IDs
+        """
+        return self._session.query(TraceSetBlob).filter_by (
+            targetId    =tgt_id,
+            experimentId=exp_id
+        )
     
     
     def getCorrolationTraceById(self, corrolationTraceId):
