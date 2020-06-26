@@ -53,6 +53,7 @@ class TraceSetBlob(Base):
     
     target      = relationship("Target")
     experiment  = relationship("Experiment")
+    parameters  = Column(String, default="")
     
     statisticTraces = relationship(
         "StatisticTrace",
