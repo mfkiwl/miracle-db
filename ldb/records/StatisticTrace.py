@@ -25,6 +25,7 @@ class StatisticTrace(Base):
     compression = Column(Enum(TraceCompression), default = TraceCompression.LZ4)
     stat_type   = Column(Enum(StatTraceType), nullable = False)
     trace_bin   = Column(Binary)
+    name        = Column(String, nullable = True)
 
     def __repr__(self):
         return "%5d, %6s, %s" % (
