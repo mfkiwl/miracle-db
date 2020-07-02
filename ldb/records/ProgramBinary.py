@@ -26,6 +26,7 @@ class ProgramBinary(Base):
     id              = Column(Integer, primary_key=True)
     binary          = Column(Binary)
     disasm          = Column(Text)
+    source          = Column(Text)
 
     experimentId= Column(Integer,ForeignKey("experiments.id"),nullable=False)
     targetId    = Column(Integer,ForeignKey("targets.id"),nullable=False)
