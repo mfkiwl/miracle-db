@@ -19,9 +19,9 @@ class Target(Base):
     boardid         = Column(Integer, ForeignKey("boards.id") , nullable=False)
     coreid          = Column(Integer, ForeignKey("cores.id")  , nullable=False)
 
-    board           = relationship("Board", cascade="all")
-    core            = relationship("Core", cascade="all")
-    device          = relationship("Device", cascade="all")
+    board           = relationship("Board" , cascade="save-update, merge, refresh-expire, expunge")
+    core            = relationship("Core"  , cascade="save-update, merge, refresh-expire, expunge")
+    device          = relationship("Device", cascade="save-update, merge, refresh-expire, expunge")
     
 
     def __repr__(self):

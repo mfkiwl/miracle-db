@@ -314,6 +314,40 @@ def commandRemove(args):
         backend.popAutoCommit()
         backend.commit()
 
+    elif(args.entity == ENTITY_TARGETS):
+
+        backend.pushAutoCommit(False)
+
+        if(args.all):
+            for tgt in backend.getAllTargets():
+                backend.removeTarget(tgt.id)
+
+        if(args.id):
+            for tid in args.id:
+                target = backend.getTargetById(tid)
+
+                if(target == None):
+                    log.error("No target exists with id '%d'" % tid)
+                    return 1
+
+                backend.removeTarget(target.id)
+                log.info("Removed target %3d %20s" % (
+                    target.id, target.name
+                ))
+
+        if(args.name):
+            for tname in args.name:
+                target = backend.getTargetByName(tname)
+
+                if(target == None):
+                    log.error("No target exists with name '%s'" % tname)
+                    return 1
+
+                backend.removeTarget(target.id)
+
+        backend.popAutoCommit()
+        backend.commit()
+
     else:
         log.error("Functionality not implemented: 'remove %s'" % args.entity)
         return 1
@@ -495,6 +529,9 @@ def buildArgParser():
     
     parser_rm_grp.add_argument("--id", type=int, nargs="+",
         help="Unique ID of the entity to remove")
+    
+    parser_rm_grp.add_argument("--name", type=str, nargs="+",
+        help="Unique Name of the entity to remove. Only used for targets")
     
     parser_rm_grp.add_argument("--all", action="store_true",
         help="Remove all entities of this type.")

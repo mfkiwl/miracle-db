@@ -650,7 +650,20 @@ class BaseBackend(object):
         along with all experimental data from the database which
         points to that target.
         """
-        assert(False)
+        tgt = self.getTargetById(targetId)
+
+        # Remove ttests
+        ttests = self._session.query(TTraceSet).filter_by(targetId = tgt.id)
+        for t in ttests:
+            self._session.delete(t)
+
+        # Remove trace blobs
+        blobs = self._session.query(TraceSetBlob).filter_by(targetId = tgt.id)
+        for b in blobs:
+            self._session.delete(b)
+
+        # Remove the target
+        self._session.delete(tgt)
 
         self._handleAutocommit()
         return None
