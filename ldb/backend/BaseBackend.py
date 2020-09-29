@@ -467,7 +467,12 @@ class BaseBackend(object):
         ).one_or_none()
 
     def getCorrolationTraceByAll(self,
-                                 targetId, experimentId, inputTraceSetIds, inputVarIds, corrType
+                                 targetId,
+                                 experimentId,
+                                 inputTraceSetIds,
+                                 inputVarIds,
+                                 corrType,
+                                 name
                                  ):
         """
         Tries to find a corrolation trace corresponding to all of the
@@ -478,7 +483,8 @@ class BaseBackend(object):
             sqlalchemy.and_(
                 CorrolationTraces.targetId == targetId,
                 CorrolationTraces.experimentId == experimentId,
-                CorrolationTraces.corrType == corrType
+                CorrolationTraces.corrType == corrType,
+                CorrolationTraces.name == name
             )
         )
 
