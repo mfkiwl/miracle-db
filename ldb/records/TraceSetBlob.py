@@ -26,6 +26,8 @@ traceset_blob_statistic_trace_association = Table (
     Column("statisticTraceId", Integer, ForeignKey("statistic_traces.id"))
 )
 
+_DEFAULT_COMPRESSION = TraceCompression.NONE
+
 class TraceSetBlob(Base):
     """
     Represents a single set of numpy traces as a 2D numpy ndarray object.
@@ -37,7 +39,7 @@ class TraceSetBlob(Base):
     __tablename__ = "traceset_blobs"
 
     id          = Column(Integer, primary_key=True)
-    compression = Column(Enum(TraceCompression), default = TraceCompression.LZ4)
+    compression = Column(Enum(TraceCompression), default = _DEFAULT_COMPRESSION)
     traceLen    = Column(Integer, default = 0)
     traceCount  = Column(Integer, default = 0)
     traces      = Column(Binary)
@@ -126,7 +128,7 @@ class TraceSetBlob(Base):
         return decompressNDArray(self.traces,self.compression)
 
 
-    def setTraces(self, traces, compression = TraceCompression.LZ4):
+    def setTraces(self, traces, compression = _DEFAULT_COMPRESSION):
         """
         Set the traces field of the record, compressing as needed, and
         update the traceCount and traceLen fields.
