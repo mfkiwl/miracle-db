@@ -32,6 +32,10 @@ class StatisticTrace(Base):
             self.id, self.stat_type.name, self.compression
         )
 
+    @property
+    def is_avg_trace(self):
+        return self.stat_type == StatTraceType.AVG
+
     def fromTraceArray(trace, stat_type, compression = TraceCompression.LZ4):
         """
         Create a new StatisticTrace object from the supplied values with the
